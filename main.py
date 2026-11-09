@@ -4,6 +4,7 @@ os.chdir(os.path.dirname(os.path.abspath(__file__)))
 size = width, height = 1280, 1024
 icon = pygame.image.load('icon.png')
 pygame.display.set_icon(icon)
+pygame.display.set_caption("Minesweeper")
 screen = pygame.display.set_mode(size)
 
 
