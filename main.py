@@ -6,8 +6,12 @@ icon = pygame.image.load('icon.png')
 pygame.display.set_icon(icon)
 pygame.display.set_caption("Minesweeper")
 screen = pygame.display.set_mode(size)
-
-
+Game_Grid = []
+for i in range(12):
+    Game_Grid.append([])
+    for j in range(12):
+        Game_Grid[i].append(" ")
+print(Game_Grid)
 while True:
     for event in pygame.event.get():               # Check if any system events have happened
         if event.type == pygame.QUIT:
