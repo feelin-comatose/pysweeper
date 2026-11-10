@@ -13,15 +13,21 @@ pygame.display.set_caption("Draw Rectangles from List")
 clock = pygame.time.Clock()
 
 # Example list of rectangles: each item is (x, y, width, height)
+w = int(800/int(input()))
+h = int(600/int(input()))
+
 rectangles = [
-    [0, 0, 50, 50],
-    [50, 0, 50, 50],
-    [100, 0, 50, 50],
-    [150, 0, 50, 50]
+    
 ]
+for j in range(-h, 601, h):
+    for i in range(-w, 751, w):
+        rectangles.append([i+w, j, w, w])
+print(rectangles)
 
 # Colors
 RECT_COLOR = (255, 0, 0)  # Red
+RECT_COLOR2 = (0, 255, 0) # green
+RECT_COLOR3 = (0, 0, 255) # blue
 BG_COLOR = (30, 30, 30)   # Dark gray
 
 def draw_rectangles(rect_list): # Draw rectangles from a list of tuples.
@@ -39,6 +45,10 @@ while True:
         if event.type == pygame.QUIT:
             pygame.quit()
             sys.exit()
+        elif event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_q:
+                pygame.quit()
+                sys.exit()
 
     # Fill background
     screen.fill(BG_COLOR)
