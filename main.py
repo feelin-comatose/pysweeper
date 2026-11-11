@@ -23,8 +23,8 @@ BG_COLOR = (30, 30, 30)
 # Build the grid once, each cell with its own fixed colour
 rectangles = []
 mines = []
-for y in range(0, rows * h, h):
-    for x in range(0, cols * w, w):
+for y in range(0, rows * h, rows):
+    for x in range(0, cols * w, cols):
         rectangles.append((pygame.Rect(x, y, w - 2, h - 2), random.choice(COLORS)))
 
 for i in rectangles:
