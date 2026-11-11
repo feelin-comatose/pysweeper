@@ -2,7 +2,7 @@ import pygame, sys, random, os
 
 
 WIDTH, HEIGHT = 800, 600
-screen = pygame.display.set_mode((WIDTH, HEIGHT))
+screen = pygame.display.set_mode((WIDTH, HEIGHT), pygame.RESIZABLE)
 icon = pygame.image.load(os.path.join('icon.png'))
 pygame.display.set_caption("Draw Rectangles from List")
 pygame.display.set_icon(icon)
@@ -11,8 +11,12 @@ clock = pygame.time.Clock()
 # Ask BEFORE the loop, and validate the input
 cols = int(input("Columns: "))
 rows = int(input("Rows: "))
+mine_target = int(input("number of mines: "))
 if cols < 1 or rows < 1:
     sys.exit("Columns and rows must be at least 1")
+
+if mine_target < 0 or mine_target > cols * rows:
+    sys.exit("Mines must be between 0 and the number of cells")
 
 w = WIDTH // cols
 h = HEIGHT // rows
@@ -22,18 +26,15 @@ BG_COLOR = (30, 30, 30)
 
 # Build the grid once, each cell with its own fixed colour
 rectangles = []
-mines = []
 for y in range(0, rows * h, h):
     for x in range(0, cols * w, w):
-        rectangles.append(pygame.Rect(x, y, w - 2, h - 2))
+        rectangles.append([pygame.Rect(x, y, w-1, h-1), 0])
 
-for i in rectangles:
-    r = random.randint(0, 1)
-    if r == 0:
-        mines.append(False)
-    else:
-        mines.append(True)
-print(mines)
+# Place exactly mine_target mines on random, distinct cells
+for i in random.sample(range(len(rectangles)), mine_target):
+    rectangles[i][1] = 1
+
+print(rectangles, mine_target)
 pygame.init()
 while True:
     for event in pygame.event.get():
@@ -45,13 +46,12 @@ while True:
             sys.exit()
 
     screen.fill(BG_COLOR)
-    for rect in rectangles:
-        for i in mines:
-            if i == True:
-                pygame.draw.rect(screen, COLORS[0], rect)
-            else:
-                pygame.draw.rect(screen, COLORS[random.randint(1,2)], rect)
+    for rect, flag in rectangles:
+        if flag == 1:
+            pygame.draw.rect(screen, COLORS[0], rect)
+        else:
+            pygame.draw.rect(screen, COLORS[1], rect)
         
-
+    
     pygame.display.flip()
     

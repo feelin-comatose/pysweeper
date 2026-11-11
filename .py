@@ -1,10 +1,34 @@
-w = int(800/int(input()))
-h = int(600/int(input()))
+import pygame, sys, random, os
 
-rectangles = [
-    
-]
-for j in range(-h, 601, h):
-    for i in range(-w, 751, w):
-        rectangles.append([i+w, j, w, w])
-print(rectangles)
+
+WIDTH, HEIGHT = 800, 600
+screen = pygame.display.set_mode((WIDTH, HEIGHT))
+icon = pygame.image.load(os.path.join('icon.png'))
+pygame.display.set_caption("Draw Rectangles from List")
+pygame.display.set_icon(icon)
+clock = pygame.time.Clock()
+
+# Ask BEFORE the loop, and validate the input
+cols = int(input("Columns: "))
+rows = int(input("Rows: "))
+mine_target = int(input("number of mines: "))
+if cols < 1 or rows < 1:
+    sys.exit("Columns and rows must be at least 1")
+
+w = WIDTH // cols
+h = HEIGHT // rows
+
+COLORS = [(255, 0, 0), (0, 255, 0), (0, 0, 255)]
+BG_COLOR = (30, 30, 30)
+
+# Build the grid once, each cell with its own fixed colour
+rectangles = []
+for y in range(0, rows * h, h):
+    for x in range(0, cols * w, w):
+        rectangles.append([pygame.Rect(x, y, w - 2, h - 2), 0])
+
+# Place exactly mine_target mines on random, distinct cells
+for i in random.sample(range(len(rectangles)), mine_target):
+    rectangles[i][1] = 1
+
+print(rectangles, mine_target)
