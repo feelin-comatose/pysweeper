@@ -37,6 +37,7 @@ for i in random.sample(range(len(rectangles)), mine_target):
 print(rectangles, mine_target)
 pygame.init()
 while True:
+    pos = (random.randint(0, WIDTH), random.randint(0, HEIGHT))
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             pygame.quit()
@@ -44,6 +45,8 @@ while True:
         elif event.type == pygame.KEYDOWN and event.key == pygame.K_q:
             pygame.quit()
             sys.exit()
+        elif event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
+            pygame.mouse.set_pos(pos)
 
     screen.fill(BG_COLOR)
     for rect, flag in rectangles:
