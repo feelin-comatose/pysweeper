@@ -19,8 +19,10 @@ h = int(600/int(input()))
 rectangles = [
     
 ]
-for j in range(-h, 601, h):
-    for i in range(-w, 751, w):
+
+mines = []
+for j in range(-h, HEIGHT+1, h):
+    for i in range(-w, WIDTH-49, w):
         rectangles.append([i+w, j, w, w])
 print(rectangles)
 
