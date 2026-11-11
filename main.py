@@ -1,11 +1,11 @@
-import pygame
-import sys
-import random
+import pygame, sys, os, random
 
 
 WIDTH, HEIGHT = 800, 600
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Draw Rectangles from List")
+icon = pygame.image.load(os.path.join('icon.png'))
+pygame.display.set_icon(icon)
 clock = pygame.time.Clock()
 
 # Ask BEFORE the loop, and validate the input
@@ -33,7 +33,7 @@ for i in rectangles:
         mines.append(False)
     else:
         mines.append(True)
-print(mines)
+print(rectangles)
 pygame.init()
 while True:
     for event in pygame.event.get():
