@@ -27,11 +27,13 @@ BG_COLOR = (30, 30, 30)
 rectangles = []
 for y in range(0, rows * h, h):
     for x in range(0, cols * w, w):
-        rectangles.append([pygame.Rect(x, y, w-1, h-1), 0])
+        rectangles.append([pygame.Rect(x, y, w-1, h-1), 0, 0])
 
 # Place exactly mine_target mines on random, distinct cells
 for i in random.sample(range(len(rectangles)), mine_target):
     rectangles[i][1] = 1
+
+print(rectangles[1][0])
 
 print(rectangles, mine_target)
 pygame.init()
@@ -46,14 +48,34 @@ while True:
             sys.exit()
         elif event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
             pygame.mouse.set_pos(pos)
+        elif event.type == pygame.MOUSEBUTTONDOWN:
+            mouse_pos = event.pos
+            if event.button == 1:  # Left mouse button
+                for rect, mine in rectangles:
+                    if rect.collidepoint(mouse_pos):
+                        if mine == 1:
+                            print("Mine clicked!")
+                        else:
+                            print("Safe cell clicked!")
+            elif event.button == 3:  # Right mouse button
+                for rect, mine, flag in rectangles:
+                    if rect.collidepoint(mouse_pos):
+                        print("flagged")
+                        flag == 1
 
     screen.fill(BG_COLOR)
-    for rect, flag in rectangles:
+    for rect, mine, flag in rectangles:
         if flag == 1:
-            pygame.draw.rect(screen, COLORS[0], rect)
+            if mine == 1:
+                pygame.draw.rect(screen, COLORS[2], rect)
+            else:
+                pygame.draw.rect(screen, COLORS[2], rect)
         else:
-            pygame.draw.rect(screen, COLORS[1], rect)
-        
-    
+            if mine == 1:
+                pygame.draw.rect(screen, COLORS[0], rect)
+            else:
+                pygame.draw.rect(screen, COLORS[1], rect)
+
+    pygame.display.update()
     pygame.display.flip()
     
