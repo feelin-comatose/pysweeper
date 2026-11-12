@@ -42,12 +42,15 @@ pygame.init()
 alive = True
 while alive:
     pos = (random.randint(0, WIDTH), random.randint(0, HEIGHT))
+    newx, newy = 0, 0
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             pygame.quit()
             sys.exit()
         elif event.type == pygame.WINDOWRESIZED:
             screen = pygame.display.set_mode((event.x, event.y), HWSURFACE|DOUBLEBUF|RESIZABLE)
+            newx, newy = event.x, event.y
+
         elif event.type == pygame.KEYDOWN:
             if event.key == pygame.K_SPACE:
                 pygame.mouse.set_pos(pos)
@@ -57,31 +60,38 @@ while alive:
         elif event.type == pygame.MOUSEBUTTONDOWN:
             mouse_pos = event.pos
             if event.button == 1:  # Left mouse button
-                for rect, mine, flag in rectangles:
-                    if rect.collidepoint(mouse_pos):
-                        if mine == 1:
-                            print("Mine clicked!")
-                            alive = False
+                for i in rectangles: 
+                    if i[0].collidepoint(mouse_pos): # i[0] = pygame.rect
+                        if i[2] == 0:
+                            if i[1] == 1: #i[1] = mine flag
+                                print("Mine clicked!")
+                                alive = False
+                            else:
+                                print("Safe cell clicked!")
                         else:
-                            print("Safe cell clicked!")
+                            print("field is flagged")
+                
             elif event.button == 3:  # Right mouse button
-                for rect, mine, flag in rectangles:
-                    if rect.collidepoint(mouse_pos):
+                for i in rectangles:
+                    if i[0].collidepoint(mouse_pos) and i[2] == 0:
                         print("flagged")
-                        flag == 1
+                        i[2] = not i[2] # i[2] = well... flag for flagging tiles?
+                    elif i[0].collidepoint(mouse_pos) and i[2] == 1:
+                        print("flag removed")
+                        i[2] = not i[2]
 
     screen.fill(BG_COLOR)
-    for rect, mine, flag in rectangles:
-        if flag == 1:
-            if mine == 1:
-                pygame.draw.rect(screen1, COLORS[2], rect)
+    for i in rectangles:
+        if i[2] == 1:
+            if i[1] == 1:
+                pygame.draw.rect(screen1, COLORS[2], i[0])
             else:
-                pygame.draw.rect(screen1, COLORS[2], rect)
+                pygame.draw.rect(screen1, COLORS[2], i[0])
         else:
-            if mine == 1:
-                pygame.draw.rect(screen1, COLORS[0], rect)
+            if i[1] == 1:
+                pygame.draw.rect(screen1, COLORS[0], i[0])
             else:
-                pygame.draw.rect(screen1, COLORS[1], rect)
+                pygame.draw.rect(screen1, COLORS[1], i[0])
 
     # print(screen)
     screen.blit(pygame.transform.scale(screen1, screen.get_rect().size), (0, 0))
