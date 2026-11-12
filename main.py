@@ -74,16 +74,16 @@ while alive:
     for rect, mine, flag in rectangles:
         if flag == 1:
             if mine == 1:
-                pygame.draw.rect(screen, COLORS[2], rect)
+                pygame.draw.rect(screen1, COLORS[2], rect)
             else:
-                pygame.draw.rect(screen, COLORS[2], rect)
+                pygame.draw.rect(screen1, COLORS[2], rect)
         else:
             if mine == 1:
-                pygame.draw.rect(screen, COLORS[0], rect)
+                pygame.draw.rect(screen1, COLORS[0], rect)
             else:
-                pygame.draw.rect(screen, COLORS[1], rect)
+                pygame.draw.rect(screen1, COLORS[1], rect)
 
     # print(screen)
-    pygame.display.update()
+    screen.blit(pygame.transform.scale(screen1, screen.get_rect().size), (0, 0))
     pygame.display.flip()
     
