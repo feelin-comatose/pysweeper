@@ -1,7 +1,9 @@
 import pygame, sys, os, random
+from pygame.locals import *
 
 WIDTH, HEIGHT = 800, 600
-screen = pygame.display.set_mode((WIDTH, HEIGHT), pygame.RESIZABLE)
+screen = pygame.display.set_mode((WIDTH, HEIGHT), HWSURFACE|DOUBLEBUF|RESIZABLE)
+screen1 = screen.copy()
 icon = pygame.image.load(os.path.join('icon.png'))
 pygame.display.set_caption("Draw Rectangles from List")
 pygame.display.set_icon(icon)
@@ -33,28 +35,33 @@ for y in range(0, rows * h, h):
 for i in random.sample(range(len(rectangles)), mine_target):
     rectangles[i][1] = 1
 
-print(rectangles[1][0])
+# print(rectangles[1][0])
 
-print(rectangles, mine_target)
+# print(rectangles, mine_target)
 pygame.init()
-while True:
+alive = True
+while alive:
     pos = (random.randint(0, WIDTH), random.randint(0, HEIGHT))
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             pygame.quit()
             sys.exit()
-        elif event.type == pygame.KEYDOWN and event.key == pygame.K_q:
-            pygame.quit()
-            sys.exit()
-        elif event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
-            pygame.mouse.set_pos(pos)
+        elif event.type == pygame.WINDOWRESIZED:
+            screen = pygame.display.set_mode((event.x, event.y), HWSURFACE|DOUBLEBUF|RESIZABLE)
+        elif event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_SPACE:
+                pygame.mouse.set_pos(pos)
+            if event.key == pygame.K_q:
+                pygame.quit()
+                sys.exit()
         elif event.type == pygame.MOUSEBUTTONDOWN:
             mouse_pos = event.pos
             if event.button == 1:  # Left mouse button
-                for rect, mine in rectangles:
+                for rect, mine, flag in rectangles:
                     if rect.collidepoint(mouse_pos):
                         if mine == 1:
                             print("Mine clicked!")
+                            alive = False
                         else:
                             print("Safe cell clicked!")
             elif event.button == 3:  # Right mouse button
@@ -76,6 +83,7 @@ while True:
             else:
                 pygame.draw.rect(screen, COLORS[1], rect)
 
+    # print(screen)
     pygame.display.update()
     pygame.display.flip()
     
