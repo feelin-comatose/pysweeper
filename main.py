@@ -50,7 +50,6 @@ if mine_target < 0 or mine_target > cols * rows:
 w = WIDTH // cols
 h = HEIGHT // rows
 
-COLORS = [(255, 0, 0), (0, 255, 0), (0, 0, 255)]
 BG_COLOR = (30, 30, 30)
 
 # Build the grid once, each cell with its own fixed colour
