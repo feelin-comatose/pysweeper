@@ -4,22 +4,27 @@ os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
 WIDTH, HEIGHT = 800, 600
 screen = pygame.display.set_mode((WIDTH, HEIGHT), HWSURFACE|DOUBLEBUF|RESIZABLE)
-icon, mine_icon = pygame.image.load('icon.png'), pygame.image.load('icon.png')
-tile_icon = pygame.image.load("closed_tile.png")
+icon, mine = pygame.image.load('assets/icon.png'), pygame.image.load('assets/mine.png')
+closed_tile = pygame.image.load("assets/closed_tile.png")
+open_tile = pygame.image.load("assets/open_tile.png")
 pygame.display.set_caption("Spleen Sweeper")
 pygame.display.set_icon(icon)
 clock = pygame.time.Clock()
 
 class Tile:
 
-    def __init__(self, x, y, w, h):
-        self.image = tile_icon
+    def __init__(self, column, row, x, y, w, h):
+        self.column = column
+        self.row = row
+        self.image = closed_tile
         self.rect = pygame.Rect(x, y, w-1, h-1)
         self.is_flagged = False
         self.is_mine = False
 
-
-
+    def resize(self, tile, xoffset, yoffset):
+        x = xoffset + self.column * tile
+        y = yoffset + self.row * tile
+        self.rect = pygame.Rect(x, y, tile - 1, tile - 1)
 
 # Ask BEFORE the loop, and validate the input
 cols = int(input("Columns: "))
@@ -37,11 +42,13 @@ h = HEIGHT // rows
 COLORS = [(255, 0, 0), (0, 255, 0), (0, 0, 255)]
 BG_COLOR = (30, 30, 30)
 
-# Build the grid once, each cell with its own fixed colour#
+# Build the grid once, each cell with its own fixed colour
 tile_list = []
-for y in range(0, rows * h, h):
-    for x in range(0, cols * w, w):
-        tile_list.append(Tile(x, y, w, h))
+for row in range(rows):
+    for column in range(cols):
+        x = column * w
+        y = rows * h
+        tile_list.append(Tile(column, row, x, y, w, h))
 
 
 # Place exactly mine_target mines on random, distinct cells
@@ -57,7 +64,7 @@ game_over = False
 
 
 
-print(tile_list)
+print(tile_list[1])
 
 
 while alive:
@@ -66,7 +73,7 @@ while alive:
     if game_over == True:
         for i in tile_list:
             if i.is_mine == True:
-                pygame.draw.rect(screen, COLORS[0], i[0])
+                pygame.draw.rect(screen, COLORS[0], i.rect)
         pygame.display.set_caption("Game Over !")
         time.sleep(3)
         sys.exit()
@@ -82,12 +89,8 @@ while alive:
             grid_width, grid_height = tile*cols, tile*rows
             xoffset = (event.x - grid_width) // 2
             yoffset = (event.y - grid_height) // 2
-            for n, cell in enumerate(tile_list):
-                column = n % cols
-                row    = n // cols
-                x = xoffset + column * tile
-                y = yoffset + row * tile
-                cell[0] = pygame.Rect(x, y, tile-1, tile-1)
+            for i in tile_list:
+                i.resize(tile, xoffset, yoffset)
         elif event.type == pygame.KEYDOWN:
             if event.key == pygame.K_q:
                 pygame.quit()
@@ -124,11 +127,11 @@ while alive:
     screen.fill(BG_COLOR)
     for i in tile_list:
         if i.is_flagged == 1:
-            pygame.draw.rect(screen, COLORS[2], i.is_flagged)
+            pygame.draw.rect(screen, COLORS[2], i.rect)
         elif i.is_mine == 1 and game_over == True:
-            pygame.draw.rect(screen, COLORS[0], i.is_flagged)
+            pygame.draw.rect(screen, COLORS[0], i.rect)
         else:
-            pygame.draw.rect(screen, COLORS[1], i.is_flagged)
+            pygame.draw.rect(screen, COLORS[1], i.rect)
 
     # print(screen)
     pygame.display.flip()
