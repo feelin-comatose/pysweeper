@@ -36,7 +36,6 @@ class Tile:
 
     def minenumber(self):
         count = 0
-        
 
 # Ask BEFORE the loop, and validate the input
 cols = int(input("Columns: "))
@@ -62,22 +61,13 @@ for row in range(rows):
         y = row * h
         tile_list.append(Tile(column, row, x, y, w, h))
 
-
 # Place exactly mine_target mines on random, distinct cells
 for i in random.sample(range(len(tile_list)), mine_target):
     tile_list[i].is_mine = True
 
-# print(tile[1][0])
-
-# print(tile, mine_target)
 pygame.init()
 alive = True
 game_over = False
-
-
-
-print(tile_list[1])
-
 
 while alive:
     clock.tick(60)
