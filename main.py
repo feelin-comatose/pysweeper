@@ -1,13 +1,41 @@
 import pygame, sys, os, random, time
 from pygame.locals import *
+os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
 WIDTH, HEIGHT = 800, 600
 screen = pygame.display.set_mode((WIDTH, HEIGHT), HWSURFACE|DOUBLEBUF|RESIZABLE)
-os.chdir(os.path.dirname(os.path.abspath(__file__)))
-icon = pygame.image.load(os.path.join('icon.png'))
-pygame.display.set_caption("Draw Rectangles from List")
-pygame.display.set_icon(icon)
+images = {}
+for file in os.listdir("assets"):
+    if file.endswith(".png"):
+        name = file.removesuffix(".png")
+        images[name] = pygame.image.load(f"assets/{file}")
+
+pygame.display.set_caption("Spleen Sweeper")
+pygame.display.set_icon(images["icon"])
 clock = pygame.time.Clock()
+
+class Tile:
+
+    def __init__(self, column, row, x, y, w, h):
+        self.column = column
+        self.row = row
+        self.image = images["closed_tile"]
+        self.rect = pygame.Rect(x, y, w-1, h-1)
+        self.is_flagged = False
+        self.is_mine = False
+        self.is_open = False
+
+    def resize(self, tile, xoffset, yoffset):
+        x = xoffset + self.column * tile
+        y = yoffset + self.row * tile
+        self.rect = pygame.Rect(x, y, tile - 1, tile - 1)
+
+    def display(self, state):
+        scaled = pygame.transform.scale(state, (self.rect.width, self.rect.height))
+        screen.blit(scaled, self.rect)
+
+    def minenumber(self):
+        count = 0
 
 # Ask BEFORE the loop, and validate the input
 cols = int(input("Columns: "))
@@ -26,32 +54,31 @@ COLORS = [(255, 0, 0), (0, 255, 0), (0, 0, 255)]
 BG_COLOR = (30, 30, 30)
 
 # Build the grid once, each cell with its own fixed colour
-rectangles = []
-for y in range(0, rows * h, h):
-    for x in range(0, cols * w, w):
-        rectangles.append([pygame.Rect(x, y, w-1, h-1), 0, 0])
+tile_list = []
+for row in range(rows):
+    for column in range(cols):
+        x = column * w
+        y = row * h
+        tile_list.append(Tile(column, row, x, y, w, h))
 
 # Place exactly mine_target mines on random, distinct cells
-for i in random.sample(range(len(rectangles)), mine_target):
-    rectangles[i][1] = 1
+for i in random.sample(range(len(tile_list)), mine_target):
+    tile_list[i].is_mine = True
 
-# print(rectangles[1][0])
-
-# print(rectangles, mine_target)
 pygame.init()
 alive = True
 game_over = False
 
-if game_over == True:
-    for i in rectangles:
-        if i[1] == 1:
-            pygame.draw.rect(screen, COLORS[0], i[0])
-    pygame.display.set_caption("Game Over !")
-    time.sleep(5)
-    sys.exit()
-
 while alive:
     clock.tick(60)
+    
+    if game_over == True:
+        for i in tile_list:
+            if i.is_mine == True:
+                i.display(images["mine"])
+        pygame.display.set_caption("Game Over !")
+        time.sleep(3)
+        sys.exit()
     
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -64,12 +91,8 @@ while alive:
             grid_width, grid_height = tile*cols, tile*rows
             xoffset = (event.x - grid_width) // 2
             yoffset = (event.y - grid_height) // 2
-            for n, cell in enumerate(rectangles):
-                column = n % cols
-                row    = n // cols
-                x = xoffset + column * tile
-                y = yoffset + row * tile
-                cell[0] = pygame.Rect(x, y, tile-1, tile-1)
+            for i in tile_list:
+                i.resize(tile, xoffset, yoffset)
         elif event.type == pygame.KEYDOWN:
             if event.key == pygame.K_q:
                 pygame.quit()
@@ -77,40 +100,40 @@ while alive:
         elif event.type == pygame.MOUSEBUTTONDOWN:
             mouse_pos = event.pos
             if event.button == 1:  # Left mouse button
-                for i in rectangles: 
-                    if game_over == True:
-                        pass
-                    else:
-                        if i[0].collidepoint(mouse_pos): # i[0] = pygame.rect
-                            if i[2] == 0:
-                                if i[1] == 1: #i[1] = mine flag
-                                    print("Mine clicked!")
-                                    game_over = True
-                                else:
-                                    print("Safe cell clicked!")
+                for i in tile_list: 
+                    if i.rect.collidepoint(mouse_pos): # i[0] = pygame.rect
+                        i.minenumber()
+                        if i.is_flagged == 0:
+                            if i.is_mine == True: #i[1] = mine flag
+                                print("Mine clicked!")
+                                game_over = True
                             else:
-                                print("field is flagged")
+                                print("Safe cell clicked!")
+                                i.is_open = True
+                        else:
+                            print("field is flagged")
                 
             elif event.button == 3:  # Right mouse button
-                for i in rectangles:
-                    if game_over == True:
+                for i in tile_list:
+                    if i.rect.collidepoint(mouse_pos) and i.is_flagged == 0 and i.is_open == False:
+                        print("flagged")
+                        i.is_flagged = not i.is_flagged # i[2] = well... flag for flagging tiles?
+                    elif i.rect.collidepoint(mouse_pos) and i.is_flagged == 1:
+                        print("flag removed")
+                        i.is_flagged = not i.is_flagged
+                    elif i.rect.collidepoint(mouse_pos) and i.is_flagged == 0 and i.is_open == True:
                         pass
-                    else:
-                        if i[0].collidepoint(mouse_pos) and i[2] == 0:
-                            print("flagged")
-                            i[2] = not i[2] # i[2] = well... flag for flagging tiles?
-                        elif i[0].collidepoint(mouse_pos) and i[2] == 1:
-                            print("flag removed")
-                            i[2] = not i[2]
 
     screen.fill(BG_COLOR)
-    for i in rectangles:
-        if i[2] == 1:
-            pygame.draw.rect(screen, COLORS[2], i[0])
-        elif i[1] == 1 and game_over == True:
-            pygame.draw.rect(screen, COLORS[0], i[0])
+    for i in tile_list:
+        if i.is_flagged == True:
+            i.display(images["flag"])
+        elif i.is_mine == True and game_over == True:
+            i.display(images["mine"])
+        elif i.is_open == True:
+            i.display(images["open_tile"])
         else:
-            pygame.draw.rect(screen, COLORS[1], i[0])
+            i.display(images["closed_tile"])
 
     # print(screen)
     pygame.display.flip()
