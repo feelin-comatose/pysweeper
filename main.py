@@ -3,6 +3,7 @@ from pygame.locals import *
 
 WIDTH, HEIGHT = 800, 600
 screen = pygame.display.set_mode((WIDTH, HEIGHT), HWSURFACE|DOUBLEBUF|RESIZABLE)
+os.chdir(os.path.dirname(os.path.abspath(__file__)))
 icon = pygame.image.load(os.path.join('icon.png'))
 pygame.display.set_caption("Draw Rectangles from List")
 pygame.display.set_icon(icon)
