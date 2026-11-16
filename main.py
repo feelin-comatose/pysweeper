@@ -53,9 +53,9 @@ class Tile:
                         break
 
                 if neighbor.is_mine:
-                    count = count+1
+                    count += 1
 
-            return count
+        return count
 
 
 # Ask BEFORE the loop, and validate the input
@@ -122,37 +122,29 @@ while alive:
             if event.button == 1:  # Left mouse button
                 for i in tile_list: 
                     if i.rect.collidepoint(mouse_pos): # i[0] = pygame.rect
-                        if i.is_open:
-                            pass
-                        elif i.is_flagged:
-                            print("field is flagged")
-                        elif i.is_mine: #i[1] = mine flag
-                            print("Mine clicked!")
+                        if i.is_mine: #i[1] = mine flag
                             game_over = True
+                        if i.is_flagged:
+                            pass
                         else:
-                            print("Safe cell clicked!")
-                            print(i.minenumber(tile_list, cols, rows))
                             i.is_open = True
                 
             elif event.button == 3:  # Right mouse button
                 for i in tile_list:
                     if i.rect.collidepoint(mouse_pos) and i.is_flagged == False and i.is_open == False:
-                        print("flagged")
                         i.is_flagged = not i.is_flagged # i[2] = well... flag for flagging tiles?
                     elif i.rect.collidepoint(mouse_pos) and i.is_flagged == True:
-                        print("flag removed")
                         i.is_flagged = not i.is_flagged
-                    elif i.rect.collidepoint(mouse_pos) and i.is_flagged == False and i.is_open == True:
-                        pass
 
     screen.fill(BG_COLOR)
     for i in tile_list:
+        mine_tile = str(i.minenumber(tile_list, cols, rows))
         if i.is_flagged == True:
             i.display(images["flag"])
         elif i.is_mine == True and game_over == True:
             i.display(images["mine"])
         elif i.is_open == True:
-            i.display(images["open_tile"])
+            i.display(images[mine_tile])
         else:
             i.display(images["closed_tile"])
 
