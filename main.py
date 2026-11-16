@@ -34,8 +34,29 @@ class Tile:
         scaled = pygame.transform.scale(state, (self.rect.width, self.rect.height))
         screen.blit(scaled, self.rect)
 
-    def minenumber(self):
+    def minenumber(self, tile_list, cols, rows):
         count = 0
+
+        for d_row in range(-1, 2):
+            for d_col in range(-1, 2):
+                n_col = self.column + d_col
+                n_row = self.row + d_row
+                
+                if d_row == 0 and d_col == 0:
+                    continue
+
+                if n_col < 0 or n_col >= cols or n_row < 0 or n_row >= rows:
+                    continue
+
+                for neighbor in tile_list:
+                    if neighbor.column == n_col and neighbor.row == n_row:
+                        break
+
+                if neighbor.is_mine:
+                    count = count+1
+
+            return count
+
 
 # Ask BEFORE the loop, and validate the input
 cols = int(input("Columns: "))
@@ -101,26 +122,27 @@ while alive:
             if event.button == 1:  # Left mouse button
                 for i in tile_list: 
                     if i.rect.collidepoint(mouse_pos): # i[0] = pygame.rect
-                        i.minenumber()
-                        if i.is_flagged == 0:
-                            if i.is_mine == True: #i[1] = mine flag
-                                print("Mine clicked!")
-                                game_over = True
-                            else:
-                                print("Safe cell clicked!")
-                                i.is_open = True
-                        else:
+                        if i.is_open:
+                            pass
+                        elif i.is_flagged:
                             print("field is flagged")
+                        elif i.is_mine: #i[1] = mine flag
+                            print("Mine clicked!")
+                            game_over = True
+                        else:
+                            print("Safe cell clicked!")
+                            print(i.minenumber(tile_list, cols, rows))
+                            i.is_open = True
                 
             elif event.button == 3:  # Right mouse button
                 for i in tile_list:
-                    if i.rect.collidepoint(mouse_pos) and i.is_flagged == 0 and i.is_open == False:
+                    if i.rect.collidepoint(mouse_pos) and i.is_flagged == False and i.is_open == False:
                         print("flagged")
                         i.is_flagged = not i.is_flagged # i[2] = well... flag for flagging tiles?
-                    elif i.rect.collidepoint(mouse_pos) and i.is_flagged == 1:
+                    elif i.rect.collidepoint(mouse_pos) and i.is_flagged == True:
                         print("flag removed")
                         i.is_flagged = not i.is_flagged
-                    elif i.rect.collidepoint(mouse_pos) and i.is_flagged == 0 and i.is_open == True:
+                    elif i.rect.collidepoint(mouse_pos) and i.is_flagged == False and i.is_open == True:
                         pass
 
     screen.fill(BG_COLOR)
