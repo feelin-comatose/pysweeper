@@ -10,7 +10,6 @@ for file in os.listdir("assets"):
         name = file.removesuffix(".png")
         images[name] = pygame.image.load(f"assets/{file}").convert_alpha()
 
-print(images)
 
 pygame.display.set_caption("Spleen Sweeper")
 pygame.display.set_icon(images["icon"])
@@ -50,9 +49,7 @@ class Tile:
                 if n_col < 0 or n_col >= cols or n_row < 0 or n_row >= rows:
                     continue
 
-                for neighbor in tile_list:
-                    if neighbor.column == n_col and neighbor.row == n_row:
-                        break
+                neighbor = tile_grid[(n_col, n_row)]
 
                 if neighbor.is_mine:
                     count += 1
@@ -77,13 +74,17 @@ h = HEIGHT // rows
 
 BG_COLOR = (30, 30, 30)
 
-# Build the grid once, each cell with its own fixed colour
+tile_grid = {}
 tile_list = []
 for row in range(rows):
     for column in range(cols):
         x = column * w
         y = row * h
-        tile_list.append(Tile(column, row, x, y, w, h))
+        tile = Tile(column, row, x, y, w, h)
+        tile_grid[(column, row)] = tile
+        tile_list.append(tile)
+
+print(tile_grid)
 
 # Place exactly mine_target mines on random, distinct cells
 for i in random.sample(range(len(tile_list)), mine_target):
