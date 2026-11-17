@@ -109,7 +109,10 @@ while alive:
             pygame.quit()
             sys.exit()
         elif event.type == pygame.WINDOWRESIZED:
-            screen = pygame.display.set_mode((event.x, event.y), HWSURFACE|DOUBLEBUF|RESIZABLE)
+            # print(pygame.display.get_surface())
+            # screen = pygame.display.set_mode((event.x, event.y), HWSURFACE|DOUBLEBUF|RESIZABLE)
+            screen = pygame.display.get_surface()
+            # print(screen)
             w, h = event.x // cols, event.y // rows
             tile = min(w,h)
             grid_width, grid_height = tile*cols, tile*rows
