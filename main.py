@@ -20,12 +20,12 @@ class Tile:
     def __init__(self, column, row, x, y, w, h):
         self.column = column
         self.row = row
-        self.image = images["closed_tile"]
         self.rect = pygame.Rect(x, y, w-1, h-1)
         self.is_flagged = False
         self.is_mine = False
         self.is_open = False
         self.neighbors = []
+        self.neighbor_mines = 0
         
 
     def resize(self, tile, xoffset, yoffset):
@@ -37,24 +37,26 @@ class Tile:
         scaled = pygame.transform.scale(state, (self.rect.width, self.rect.height))
         screen.blit(scaled, self.rect)
     
-    def neighbor_count(self):
+    def neighbor_count(self, tile_grid):
         for d_row in range(-1, 2):
             for d_col in range(-1, 2):
-                n_col = self.column + d_col
-                n_row = self.row + d_row
-                self.neighbors.append((n_col, n_row))
+                if d_col == 0 and d_row == 0:
+                    continue
+                pos = (self.column + d_col, self.row + d_row)
+                if pos in tile_grid:
+                    self.neighbors.append(pos)
     
-    def minenumber(self, tile_grid, cols, rows):
+    def minenumber(self, tile_grid):
         count = 0
 
         for i in self.neighbors:
             neighbor = tile_grid[i]
             if neighbor.is_mine:
                 count += 1
-        if count == 0:
-            return "open_tile"
+        if count != 0:
+            self.neighbor_mines = count
         else:
-            return count
+            self.neighbor_mines = "open_tile"
     
     
 
@@ -83,11 +85,14 @@ for row in range(rows):
         tile_grid[(column, row)] = tile
         tile_list.append(tile)
 
-print(tile_grid)
-
 # Place exactly mine_target mines on random, distinct cells
 for i in random.sample(range(len(tile_list)), mine_target):
     tile_list[i].is_mine = True
+
+for t in tile_list:
+    t.neighbor_count(tile_grid)
+for t in tile_list:
+    t.minenumber(tile_grid)
 
 pygame.init()
 alive = True
@@ -145,13 +150,12 @@ while alive:
 
     screen.fill(BG_COLOR)
     for i in tile_list:
-        number_tile = str(i.minenumber(tile_grid, cols, rows))
         if i.is_flagged == True:
             i.display(images["flag"])
         elif i.is_mine == True and game_over == True:
             i.display(images["mine_exploded"])
         elif i.is_open == True:
-            i.display(images[number_tile])
+            i.display(images[str(i.neighbor_mines)])
         else:
             i.display(images["closed_tile"])
 
