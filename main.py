@@ -25,7 +25,8 @@ class Tile:
         self.is_flagged = False
         self.is_mine = False
         self.is_open = False
-        self.neighbors = ()
+        self.neighbors = []
+        
 
     def resize(self, tile, xoffset, yoffset):
         x = xoffset + self.column * tile
@@ -37,26 +38,19 @@ class Tile:
         screen.blit(scaled, self.rect)
     
     def neighbor_count(self):
-        pass
-    
-    def minenumber(self, tile_grid, cols, rows):
-        count = 0
-
         for d_row in range(-1, 2):
             for d_col in range(-1, 2):
                 n_col = self.column + d_col
                 n_row = self.row + d_row
-                
-                if d_row == 0 and d_col == 0:
-                    continue
+                self.neighbors.append((n_col, n_row))
+    
+    def minenumber(self, tile_grid, cols, rows):
+        count = 0
 
-                if n_col < 0 or n_col >= cols or n_row < 0 or n_row >= rows:
-                    continue
-
-                neighbor = tile_grid[(n_col, n_row)]
-
-                if neighbor.is_mine:
-                    count += 1
+        for i in self.neighbors:
+            neighbor = tile_grid[i]
+            if neighbor.is_mine:
+                count += 1
         if count == 0:
             return "open_tile"
         else:
