@@ -8,7 +8,9 @@ images = {}
 for file in os.listdir("assets"):
     if file.endswith(".png"):
         name = file.removesuffix(".png")
-        images[name] = pygame.image.load(f"assets/{file}")
+        images[name] = pygame.image.load(f"assets/{file}").convert_alpha()
+
+print(images)
 
 pygame.display.set_caption("Spleen Sweeper")
 pygame.display.set_icon(images["icon"])
@@ -54,8 +56,10 @@ class Tile:
 
                 if neighbor.is_mine:
                     count += 1
-
-        return count
+        if count == 0:
+            return "open_tile"
+        else:
+            return count
 
 
 # Ask BEFORE the loop, and validate the input
@@ -138,13 +142,13 @@ while alive:
 
     screen.fill(BG_COLOR)
     for i in tile_list:
-        mine_tile = str(i.minenumber(tile_list, cols, rows))
+        number_tile = str(i.minenumber(tile_list, cols, rows))
         if i.is_flagged == True:
             i.display(images["flag"])
         elif i.is_mine == True and game_over == True:
-            i.display(images["mine"])
+            i.display(images["mine_exploded"])
         elif i.is_open == True:
-            i.display(images[mine_tile])
+            i.display(images[number_tile])
         else:
             i.display(images["closed_tile"])
 
