@@ -25,6 +25,7 @@ class Tile:
         self.is_flagged = False
         self.is_mine = False
         self.is_open = False
+        self.neighbors = ()
 
     def resize(self, tile, xoffset, yoffset):
         x = xoffset + self.column * tile
@@ -34,8 +35,11 @@ class Tile:
     def display(self, state):
         scaled = pygame.transform.scale(state, (self.rect.width, self.rect.height))
         screen.blit(scaled, self.rect)
-
-    def minenumber(self, tile_list, cols, rows):
+    
+    def neighbor_count(self):
+        pass
+    
+    def minenumber(self, tile_grid, cols, rows):
         count = 0
 
         for d_row in range(-1, 2):
@@ -57,7 +61,8 @@ class Tile:
             return "open_tile"
         else:
             return count
-
+    
+    
 
 # Ask BEFORE the loop, and validate the input
 cols = int(input("Columns: "))
@@ -146,7 +151,7 @@ while alive:
 
     screen.fill(BG_COLOR)
     for i in tile_list:
-        number_tile = str(i.minenumber(tile_list, cols, rows))
+        number_tile = str(i.minenumber(tile_grid, cols, rows))
         if i.is_flagged == True:
             i.display(images["flag"])
         elif i.is_mine == True and game_over == True:
