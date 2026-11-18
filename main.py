@@ -4,6 +4,7 @@ os.chdir(os.path.dirname(os.path.abspath(__file__)))
 pygame.init()
 
 WIDTH, HEIGHT = 800, 600
+BG_COLOR = (30, 30, 30)
 screen = pygame.display.set_mode((WIDTH, HEIGHT), HWSURFACE|DOUBLEBUF|RESIZABLE)
 images = {}
 for file in os.listdir("assets"):
@@ -80,14 +81,14 @@ def restart():
             tile_list.append(tile)
     resize_board()
 
-    # Place exactly mine_target mines on random, distinct cells
-    for i in random.sample(range(len(tile_list)), mine_target):
-        tile_list[i].is_mine = True
-
+def place_mines(safe_tile):
     for t in tile_list:
         t.neighbor_count(tile_grid)
     for t in tile_list:
         t.minenumber(tile_grid)
+
+    for i in random.sample(range(len(tile_list)), mine_target):
+        tile_list[i].is_mine = True
 
 def resize_board():
     (win_w, win_h) = pygame.display.get_window_size()
@@ -101,31 +102,29 @@ def resize_board():
 
 w = WIDTH // cols
 h = HEIGHT // rows
-
-BG_COLOR = (30, 30, 30)
-
 tile_grid = {}
 tile_list = []
-for row in range(rows):
-    for column in range(cols):
-        x = column * w
-        y = row * h
-        tile = Tile(column, row, x, y, w, h)
-        tile_grid[(column, row)] = tile
-        tile_list.append(tile)
+# for row in range(rows):
+#     for column in range(cols):
+#         x = column * w
+#         y = row * h
+#         tile = Tile(column, row, x, y, w, h)
+#         tile_grid[(column, row)] = tile
+#         tile_list.append(tile)
 
-# Place exactly mine_target mines on random, distinct cells
-for i in random.sample(range(len(tile_list)), mine_target):
-    tile_list[i].is_mine = True
+# # Place exactly mine_target mines on random, distinct cells
+# for i in random.sample(range(len(tile_list)), mine_target):
+#     tile_list[i].is_mine = True
 
-for t in tile_list:
-    t.neighbor_count(tile_grid)
-for t in tile_list:
-    t.minenumber(tile_grid)
+# for t in tile_list:
+#     t.neighbor_count(tile_grid)
+# for t in tile_list:
+#     t.minenumber(tile_grid)
 
 alive = True
 game_over = False
-
+first_click = True
+restart()
 
 while alive:
     clock.tick(60)
@@ -145,6 +144,9 @@ while alive:
         elif event.type == pygame.MOUSEBUTTONDOWN:
             mouse_pos = event.pos
             if event.button == 1 and game_over == False:  # Left mouse button
+                if first_click == True:
+                    # todo: safe first tile
+                    first_click = False
                 for i in tile_list: 
                     if i.rect.collidepoint(mouse_pos):
                         if i.is_open:
