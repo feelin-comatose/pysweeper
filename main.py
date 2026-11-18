@@ -105,19 +105,14 @@ while alive:
         for i in tile_list:
             if i.is_mine == True:
                 i.display(images["mine"])
-        pygame.display.set_caption("Game Over !")
-        time.sleep(3)
-        sys.exit()
+        pygame.display.set_caption("Game Over!")
     
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             pygame.quit()
             sys.exit()
         elif event.type == pygame.WINDOWRESIZED:
-            # print(pygame.display.get_surface())
-            # screen = pygame.display.set_mode((event.x, event.y), HWSURFACE|DOUBLEBUF|RESIZABLE)
             screen = pygame.display.get_surface()
-            # print(screen)
             w, h = event.x // cols, event.y // rows
             tile = min(w,h)
             grid_width, grid_height = tile*cols, tile*rows
@@ -133,18 +128,18 @@ while alive:
             mouse_pos = event.pos
             if event.button == 1:  # Left mouse button
                 for i in tile_list: 
-                    if i.rect.collidepoint(mouse_pos): # i[0] = pygame.rect
-                        if i.is_mine: #i[1] = mine flag
-                            game_over = True
+                    if i.rect.collidepoint(mouse_pos):
                         if i.is_flagged:
                             pass
+                        if i.is_mine:
+                            game_over = True
                         else:
                             i.is_open = True
                 
             elif event.button == 3:  # Right mouse button
                 for i in tile_list:
                     if i.rect.collidepoint(mouse_pos) and i.is_flagged == False and i.is_open == False:
-                        i.is_flagged = not i.is_flagged # i[2] = well... flag for flagging tiles?
+                        i.is_flagged = not i.is_flagged
                     elif i.rect.collidepoint(mouse_pos) and i.is_flagged == True:
                         i.is_flagged = not i.is_flagged
 
