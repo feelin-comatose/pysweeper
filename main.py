@@ -48,15 +48,12 @@ class Tile:
     
     def minenumber(self, tile_grid):
         count = 0
-
         for i in self.neighbors:
             neighbor = tile_grid[i]
             if neighbor.is_mine:
                 count += 1
-        if count != 0:
-            self.neighbor_mines = count
-        else:
-            self.neighbor_mines = "open_tile"
+        self.neighbor_mines = count
+        
     
     
 
@@ -98,10 +95,13 @@ pygame.init()
 alive = True
 game_over = False
 
+
+    
+
 while alive:
     clock.tick(60)
-    
-    if game_over == True:
+
+    while game_over == True:
         for i in tile_list:
             if i.is_mine == True:
                 i.display(images["mine"])
@@ -129,6 +129,8 @@ while alive:
             if event.button == 1:  # Left mouse button
                 for i in tile_list: 
                     if i.rect.collidepoint(mouse_pos):
+                        if i.is_open:
+                            pass
                         if i.is_flagged:
                             pass
                         if i.is_mine:
@@ -150,7 +152,10 @@ while alive:
         elif i.is_mine == True and game_over == True:
             i.display(images["mine_exploded"])
         elif i.is_open == True:
-            i.display(images[str(i.neighbor_mines)])
+            if i.neighbor_mines == 0:
+                i.display(images["open_tile"])
+            else:
+                i.display(images[str(i.neighbor_mines)])
         else:
             i.display(images["closed_tile"])
 
