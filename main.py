@@ -67,7 +67,7 @@ class Tile:
         self.neighbor_mines = count
 
 def restart():
-    global game_over, tile_list, tile_grid, w, h
+    global game_over, tile_list, tile_grid
     tile_grid = {}
     tile_list = []
     game_over = False
@@ -78,6 +78,7 @@ def restart():
             tile = Tile(column, row, x, y, w, h)
             tile_grid[(column, row)] = tile
             tile_list.append(tile)
+    resize_board()
 
     # Place exactly mine_target mines on random, distinct cells
     for i in random.sample(range(len(tile_list)), mine_target):
@@ -87,7 +88,16 @@ def restart():
         t.neighbor_count(tile_grid)
     for t in tile_list:
         t.minenumber(tile_grid)
-    
+
+def resize_board():
+    (win_w, win_h) = pygame.display.get_window_size()
+    w, h = win_w // cols, win_h // rows
+    tile = min(w,h)
+    grid_width, grid_height = tile*cols, tile*rows
+    xoffset = (win_w - grid_width) // 2
+    yoffset = (win_h - grid_height) // 2
+    for i in tile_list:
+        i.resize(tile, xoffset, yoffset)
 
 w = WIDTH // cols
 h = HEIGHT // rows
@@ -119,20 +129,13 @@ game_over = False
 
 while alive:
     clock.tick(60)
-
+    resize_board()
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             pygame.quit()
             sys.exit()
         elif event.type == pygame.WINDOWRESIZED:
-            screen = pygame.display.get_surface()
-            w, h = event.x // cols, event.y // rows
-            tile = min(w,h)
-            grid_width, grid_height = tile*cols, tile*rows
-            xoffset = (event.x - grid_width) // 2
-            yoffset = (event.y - grid_height) // 2
-            for i in tile_list:
-                i.resize(tile, xoffset, yoffset)
+            resize_board()
         elif event.type == pygame.KEYDOWN:
             if event.key == pygame.K_q:
                 pygame.quit()
@@ -159,7 +162,6 @@ while alive:
                         i.is_flagged = not i.is_flagged
                     elif i.rect.collidepoint(mouse_pos) and i.is_flagged == True:
                         i.is_flagged = not i.is_flagged
-                        i.is_open = False
             else: pass
 
     screen.fill(BG_COLOR)
