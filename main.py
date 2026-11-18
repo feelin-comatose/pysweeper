@@ -1,6 +1,7 @@
 import pygame, sys, os, random, time
 from pygame.locals import *
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
+pygame.init()
 
 WIDTH, HEIGHT = 800, 600
 screen = pygame.display.set_mode((WIDTH, HEIGHT), HWSURFACE|DOUBLEBUF|RESIZABLE)
@@ -112,7 +113,6 @@ for t in tile_list:
 for t in tile_list:
     t.minenumber(tile_grid)
 
-pygame.init()
 alive = True
 game_over = False
 
