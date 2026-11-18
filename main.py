@@ -20,7 +20,7 @@ class Tile:
     def __init__(self, column, row, x, y, w, h):
         self.column = column
         self.row = row
-        self.rect = pygame.Rect(x, y, w-1, h-1)
+        self.rect = pygame.Rect(x, y, w, h)
         self.is_flagged = False
         self.is_mine = False
         self.is_open = False
@@ -31,7 +31,7 @@ class Tile:
     def resize(self, tile, xoffset, yoffset):
         x = xoffset + self.column * tile
         y = yoffset + self.row * tile
-        self.rect = pygame.Rect(x, y, tile - 1, tile - 1)
+        self.rect = pygame.Rect(x, y, tile, tile)
 
     def display(self, state):
         scaled = pygame.transform.scale(state, (self.rect.width, self.rect.height))
