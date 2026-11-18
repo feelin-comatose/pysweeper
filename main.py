@@ -15,6 +15,15 @@ pygame.display.set_caption("Spleen Sweeper")
 pygame.display.set_icon(images["icon"])
 clock = pygame.time.Clock()
 
+cols = int(input("Columns: "))
+rows = int(input("Rows: "))
+mine_target = int(input("number of mines: "))
+if cols < 1 or rows < 1:
+    sys.exit("Columns and rows must be at least 1")
+
+if mine_target < 0 or mine_target > cols * rows:
+    sys.exit("Mines must be between 0 and the number of cells")
+
 class Tile:
 
     def __init__(self, column, row, x, y, w, h):
@@ -48,24 +57,36 @@ class Tile:
     
     def minenumber(self, tile_grid):
         count = 0
+
         for i in self.neighbors:
             neighbor = tile_grid[i]
             if neighbor.is_mine:
                 count += 1
+
         self.neighbor_mines = count
-        
-    
-    
 
-# Ask BEFORE the loop, and validate the input
-cols = int(input("Columns: "))
-rows = int(input("Rows: "))
-mine_target = int(input("number of mines: "))
-if cols < 1 or rows < 1:
-    sys.exit("Columns and rows must be at least 1")
+def restart():
+    global game_over, tile_list, tile_grid, w, h
+    tile_grid = {}
+    tile_list = []
+    game_over = False
+    for row in range(rows):
+        for column in range(cols):
+            x = column * w
+            y = row * h
+            tile = Tile(column, row, x, y, w, h)
+            tile_grid[(column, row)] = tile
+            tile_list.append(tile)
 
-if mine_target < 0 or mine_target > cols * rows:
-    sys.exit("Mines must be between 0 and the number of cells")
+    # Place exactly mine_target mines on random, distinct cells
+    for i in random.sample(range(len(tile_list)), mine_target):
+        tile_list[i].is_mine = True
+
+    for t in tile_list:
+        t.neighbor_count(tile_grid)
+    for t in tile_list:
+        t.minenumber(tile_grid)
+    
 
 w = WIDTH // cols
 h = HEIGHT // rows
@@ -96,17 +117,9 @@ alive = True
 game_over = False
 
 
-    
-
 while alive:
     clock.tick(60)
 
-    while game_over == True:
-        for i in tile_list:
-            if i.is_mine == True:
-                i.display(images["mine"])
-        pygame.display.set_caption("Game Over!")
-    
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             pygame.quit()
@@ -124,26 +137,30 @@ while alive:
             if event.key == pygame.K_q:
                 pygame.quit()
                 sys.exit()
+            if event.key == pygame.K_r:
+                restart()
         elif event.type == pygame.MOUSEBUTTONDOWN:
             mouse_pos = event.pos
-            if event.button == 1:  # Left mouse button
+            if event.button == 1 and game_over == False:  # Left mouse button
                 for i in tile_list: 
                     if i.rect.collidepoint(mouse_pos):
                         if i.is_open:
                             pass
-                        if i.is_flagged:
+                        elif i.is_flagged:
                             pass
-                        if i.is_mine:
+                        elif i.is_mine:
                             game_over = True
                         else:
                             i.is_open = True
-                
-            elif event.button == 3:  # Right mouse button
+
+            elif event.button == 3 and game_over == False:  # Right mouse button
                 for i in tile_list:
                     if i.rect.collidepoint(mouse_pos) and i.is_flagged == False and i.is_open == False:
                         i.is_flagged = not i.is_flagged
                     elif i.rect.collidepoint(mouse_pos) and i.is_flagged == True:
                         i.is_flagged = not i.is_flagged
+                        i.is_open = False
+            else: pass
 
     screen.fill(BG_COLOR)
     for i in tile_list:
