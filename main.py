@@ -104,8 +104,29 @@ def resize_board():
         i.resize(tile, xoffset, yoffset)
 
 def flood_fill(tile):
-    pass # todo: flood fill
+    tile.is_open = True
+    todo = []
+    if tile.neighbor_mines != 0:
+        pass
+    else:
+        todo.append(tile)
+    while len(todo) > 0:
+        current = todo.pop()
+        for i in current.neighbors:
+            if tile_grid[i].is_open == True:
+                pass
+            elif tile_grid[i].is_flagged == True:
+                pass
+            else:
+                tile_grid[i].is_open = True
+                if tile_grid[i].neighbor_mines == 0:
+                    todo.append(tile_grid[i])
+                else:
+                    pass
 
+def chording():
+    pass # todo
+    
 w = WIDTH // cols
 h = HEIGHT // rows
 tile_grid = {}
@@ -146,7 +167,7 @@ while alive:
                             game_over = True
                             break
                         else:
-                            i.is_open = True
+                            flood_fill(i)
                             break
 
             elif event.button == 3 and game_over == False:  # Right mouse button
