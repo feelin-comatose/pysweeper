@@ -125,8 +125,38 @@ def flood_fill(tile):
                 else:
                     pass
 
-def chording():
-    pass # todo
+def chording_tiles(tile):
+    global game_over
+    flags = 0
+    for i in tile.neighbors:
+        if tile_grid[i].is_flagged == True:
+            flags += 1
+        else:
+            pass
+    if flags == tile.neighbor_mines:
+        for i in tile.neighbors: 
+            if tile_grid[i].is_open == True:
+                pass
+            elif tile_grid[i].is_flagged == True:
+                pass
+            elif tile_grid[i].is_mine == True:
+                game_over = True
+            else:
+                flood_fill(tile_grid[i])
+
+def chording_flags(tile):
+    tiles = 0
+    for i in tile.neighbors:
+        if tile_grid[i].is_open == False:
+            tiles += 1
+        else:
+            pass
+    if tiles == tile.neighbor_mines:
+        for i in tile.neighbors: 
+            if tile_grid[i].is_open == True:
+                pass
+            else:
+                tile_grid[i].is_flagged = True
     
 w = WIDTH // cols
 h = HEIGHT // rows
@@ -161,6 +191,7 @@ while alive:
                             place_mines(i)
                             first_click = False
                         if i.is_open:
+                            chording_tiles(i)
                             break
                         elif i.is_flagged:
                             break
@@ -175,6 +206,8 @@ while alive:
                 for i in tile_list:
                     if i.rect.collidepoint(mouse_pos) and i.is_flagged == False and i.is_open == False:
                         i.is_flagged = not i.is_flagged
+                    elif i.rect.collidepoint(mouse_pos) and i.is_flagged == False and i.is_open:
+                        chording_flags(i)
                     elif i.rect.collidepoint(mouse_pos) and i.is_flagged == True:
                         i.is_flagged = not i.is_flagged
             else: pass
