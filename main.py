@@ -3,7 +3,7 @@ from pygame.locals import *
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 pygame.init()
 
-WIDTH, HEIGHT = 800, 600
+WIDTH, HEIGHT = 1000, 1000
 BG_COLOR = (30, 30, 30)
 screen = pygame.display.set_mode((WIDTH, HEIGHT), HWSURFACE|DOUBLEBUF|RESIZABLE)
 images = {}
