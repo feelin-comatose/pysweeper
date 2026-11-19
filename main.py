@@ -23,7 +23,7 @@ mine_target = int(input("number of mines: "))
 if cols < 1 or rows < 1:
     sys.exit("Columns and rows must be at least 1")
 
-if mine_target < 0 or mine_target > cols * rows:
+if mine_target < 0 or mine_target > (cols * rows) - 1:
     sys.exit("Mines must be between 0 and the number of cells")
 
 class Tile:
@@ -68,7 +68,8 @@ class Tile:
         self.neighbor_mines = count
 
 def restart():
-    global game_over, tile_list, tile_grid
+    global game_over, tile_list, tile_grid, first_click
+    first_click = True
     tile_grid = {}
     tile_list = []
     game_over = False
@@ -79,16 +80,18 @@ def restart():
             tile = Tile(column, row, x, y, w, h)
             tile_grid[(column, row)] = tile
             tile_list.append(tile)
+    for t in tile_list:
+        t.neighbor_count(tile_grid)
     resize_board()
 
 def place_mines(safe_tile):
-    for t in tile_list:
-        t.neighbor_count(tile_grid)
+    tiles = tile_list.copy()
+    tiles.remove(safe_tile)
+    for i in random.sample(tiles, mine_target):
+        i.is_mine = True
     for t in tile_list:
         t.minenumber(tile_grid)
-
-    for i in random.sample(range(len(tile_list)), mine_target):
-        tile_list[i].is_mine = True
+            
 
 def resize_board():
     (win_w, win_h) = pygame.display.get_window_size()
@@ -100,26 +103,13 @@ def resize_board():
     for i in tile_list:
         i.resize(tile, xoffset, yoffset)
 
+def flood_fill(tile):
+    pass # todo: flood fill
+
 w = WIDTH // cols
 h = HEIGHT // rows
 tile_grid = {}
 tile_list = []
-# for row in range(rows):
-#     for column in range(cols):
-#         x = column * w
-#         y = row * h
-#         tile = Tile(column, row, x, y, w, h)
-#         tile_grid[(column, row)] = tile
-#         tile_list.append(tile)
-
-# # Place exactly mine_target mines on random, distinct cells
-# for i in random.sample(range(len(tile_list)), mine_target):
-#     tile_list[i].is_mine = True
-
-# for t in tile_list:
-#     t.neighbor_count(tile_grid)
-# for t in tile_list:
-#     t.minenumber(tile_grid)
 
 alive = True
 game_over = False
@@ -128,7 +118,6 @@ restart()
 
 while alive:
     clock.tick(60)
-    resize_board()
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             pygame.quit()
@@ -144,19 +133,21 @@ while alive:
         elif event.type == pygame.MOUSEBUTTONDOWN:
             mouse_pos = event.pos
             if event.button == 1 and game_over == False:  # Left mouse button
-                if first_click == True:
-                    # todo: safe first tile
-                    first_click = False
                 for i in tile_list: 
                     if i.rect.collidepoint(mouse_pos):
+                        if first_click == True:
+                            place_mines(i)
+                            first_click = False
                         if i.is_open:
-                            pass
+                            break
                         elif i.is_flagged:
-                            pass
+                            break
                         elif i.is_mine:
                             game_over = True
+                            break
                         else:
                             i.is_open = True
+                            break
 
             elif event.button == 3 and game_over == False:  # Right mouse button
                 for i in tile_list:
