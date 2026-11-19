@@ -1,21 +1,9 @@
 import pygame, sys, os, random, time
 from pygame.locals import *
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
-pygame.init()
 
 WIDTH, HEIGHT = 1000, 1000
 BG_COLOR = (30, 30, 30)
-screen = pygame.display.set_mode((WIDTH, HEIGHT), HWSURFACE|DOUBLEBUF|RESIZABLE)
-images = {}
-for file in os.listdir("assets"):
-    if file.endswith(".png"):
-        name = file.removesuffix(".png")
-        images[name] = pygame.image.load(f"assets/{file}").convert_alpha()
-
-
-pygame.display.set_caption("Spleen Sweeper")
-pygame.display.set_icon(images["icon"])
-clock = pygame.time.Clock()
 
 cols = int(input("Columns: "))
 rows = int(input("Rows: "))
@@ -25,6 +13,19 @@ if cols < 1 or rows < 1:
 
 if mine_target < 0 or mine_target > (cols * rows) - 1:
     sys.exit("Mines must be between 0 and the number of cells")
+
+pygame.init()
+screen = pygame.display.set_mode((WIDTH, HEIGHT), HWSURFACE|DOUBLEBUF|RESIZABLE)
+images = {}
+for file in os.listdir("assets"):
+    if file.endswith(".png"):
+        name = file.removesuffix(".png")
+        images[name] = pygame.image.load(f"assets/{file}").convert_alpha()
+        
+pygame.display.set_caption("Spleen Sweeper")
+pygame.display.set_icon(images["icon"])
+clock = pygame.time.Clock()
+
 
 class Tile:
 
