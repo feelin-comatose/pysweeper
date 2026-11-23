@@ -165,6 +165,7 @@ tile_list = []
 
 alive = True
 game_over = False
+win_condition = (cols * rows) - mine_target
 first_click = True
 restart()
 
