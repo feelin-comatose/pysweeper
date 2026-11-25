@@ -69,11 +69,14 @@ class Tile:
         self.neighbor_mines = count
 
 def restart():
-    global game_over, tile_list, tile_grid, first_click
+    global game_over, tile_list, tile_grid, first_click, win_condition, s
+    s = time.process_time()
+    win_condition = (cols * rows) - mine_target
     first_click = True
     tile_grid = {}
     tile_list = []
     game_over = False
+    pygame.display.set_caption("Spleen Sweeper")
     for row in range(rows):
         for column in range(cols):
             x = column * w
@@ -92,7 +95,9 @@ def place_mines(safe_tile):
         i.is_mine = True
     for t in tile_list:
         t.minenumber(tile_grid)
-            
+
+def time_elapsed(s):
+    return int(time.process_time() - s)
 
 def resize_board():
     (win_w, win_h) = pygame.display.get_window_size()
@@ -105,7 +110,9 @@ def resize_board():
         i.resize(tile, xoffset, yoffset)
 
 def flood_fill(tile):
+    global win_condition
     tile.is_open = True
+    win_condition -= 1
     todo = []
     if tile.neighbor_mines != 0:
         pass
@@ -120,6 +127,7 @@ def flood_fill(tile):
                 pass
             else:
                 tile_grid[i].is_open = True
+                win_condition -= 1
                 if tile_grid[i].neighbor_mines == 0:
                     todo.append(tile_grid[i])
                 else:
@@ -166,11 +174,16 @@ tile_list = []
 alive = True
 game_over = False
 win_condition = (cols * rows) - mine_target
+s = 0
+time_to_beat = 0
 first_click = True
 restart()
 
 while alive:
     clock.tick(60)
+    if win_condition == 0:
+        time_to_beat = time_elapsed(s)
+        pygame.display.set_caption("")
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             pygame.quit()
@@ -185,7 +198,7 @@ while alive:
                 restart()
         elif event.type == pygame.MOUSEBUTTONDOWN:
             mouse_pos = event.pos
-            if event.button == 1 and game_over == False:  # Left mouse button
+            if event.button == 1 and game_over == False and win_condition != 0:  # Left mouse button
                 for i in tile_list: 
                     if i.rect.collidepoint(mouse_pos):
                         if first_click == True:
@@ -203,7 +216,7 @@ while alive:
                             flood_fill(i)
                             break
 
-            elif event.button == 3 and game_over == False:  # Right mouse button
+            elif event.button == 3 and game_over == False and win_condition != 0:  # Right mouse button
                 for i in tile_list:
                     if i.rect.collidepoint(mouse_pos) and i.is_flagged == False and i.is_open == False:
                         i.is_flagged = not i.is_flagged
@@ -227,6 +240,7 @@ while alive:
         else:
             i.display(images["closed_tile"])
 
-    # print(screen)
+
     pygame.display.flip()
+    print(win_condition)
     
