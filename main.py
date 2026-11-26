@@ -174,7 +174,6 @@ tile_list = []
 alive = True
 game_over = False
 win_condition = (cols * rows) - mine_target
-s = 0
 time_to_beat = 0
 first_click = True
 restart()
@@ -183,7 +182,8 @@ while alive:
     clock.tick(60)
     if win_condition == 0:
         time_to_beat = time_elapsed(s)
-        pygame.display.set_caption("")
+        print(time_to_beat)
+        pygame.display.set_caption("You won!")
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             pygame.quit()
@@ -242,5 +242,4 @@ while alive:
 
 
     pygame.display.flip()
-    print(win_condition)
     
